@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class Splash2 extends StatefulWidget {
   @override
@@ -9,12 +10,21 @@ class Splash2 extends StatefulWidget {
 }
 
 class _Splash2State extends State<Splash2> {
+  var uid;
   @override
   void initState() {
     super.initState();
+    getData();
     Timer(Duration(seconds: 3), () {
-      Navigator.of(context).pushReplacementNamed('/login');
+      uid == null
+          ? Navigator.of(context).pushReplacementNamed('/login')
+          : Navigator.of(context).pushReplacementNamed('/home');
     });
+  }
+
+  Future getData() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    uid = await prefs.getString('EmpID');
   }
 
   @override

@@ -1,5 +1,9 @@
+import 'dart:convert';
+
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:gmaps_demo/Widgets/drawer.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class HomeScreen extends StatefulWidget {
   @override
@@ -7,19 +11,25 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  Future getData() async {}
+  var _empId;
+  var _name;
 
-  Future<void> refreshData() async {
-    await Future.delayed(
-      Duration(seconds: 1),
-    );
-    setState(() {
-      getData();
-    });
+  Future getEmpId() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    _empId = prefs.getString('EmpID');
+    _name = prefs.getString('Name');
+  }
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    getEmpId();
   }
 
   @override
   Widget build(BuildContext context) {
+    // TODO: implement build
     return Scaffold(
       appBar: AppBar(
         title: Text(
@@ -34,7 +44,7 @@ class _HomeScreenState extends State<HomeScreen> {
         backgroundColor: Colors.white,
         elevation: 0,
       ),
-      drawer: customDrawer(context),
+      drawer: customDrawer(context, _name, _empId),
       body: RefreshIndicator(
         onRefresh: refreshData,
         backgroundColor: Colors.black87,
@@ -42,7 +52,9 @@ class _HomeScreenState extends State<HomeScreen> {
         child: FutureBuilder(
           builder: (context, snapshot) {
             if (!snapshot.hasData)
-              return Center(child: CircularProgressIndicator());
+              return Center(
+                child: CircularProgressIndicator(),
+              );
             else if (snapshot.hasError)
               return Center(
                 child: Text('Oops Error Occured'),
@@ -55,7 +67,44 @@ class _HomeScreenState extends State<HomeScreen> {
                     padding: const EdgeInsets.all(8.0),
                     child: ListTile(
                       tileColor: Colors.amber[50],
-                      title: Text(snapshot.data[index]['title']),
+                      title: Row(
+                        children: [
+                          Row(
+                            children: [
+                              Text("Origin ->"),
+                              SizedBox(width: 10),
+                              Text(snapshot.data[index]['origin']),
+                            ],
+                          ),
+                          Spacer(),
+                          Row(
+                            children: [
+                              Text("Destination ->"),
+                              SizedBox(width: 10),
+                              Text(snapshot.data[index]['destination']),
+                            ],
+                          ),
+                        ],
+                      ),
+                      subtitle: Row(
+                        children: [
+                          Row(
+                            children: [
+                              Text("Employee ID ->"),
+                              SizedBox(width: 10),
+                              Text(snapshot.data[index]['empId']),
+                            ],
+                          ),
+                          Spacer(),
+                          Row(
+                            children: [
+                              Text("Raised Date ->"),
+                              SizedBox(width: 10),
+                              Text(snapshot.data[index]['createdAt']),
+                            ],
+                          ),
+                        ],
+                      ),
                       onTap: () {},
                     ),
                   );
@@ -63,111 +112,26 @@ class _HomeScreenState extends State<HomeScreen> {
               );
             }
           },
-          future: getData(),
+          future: retrieveData(),
         ),
       ),
     );
   }
-}
-/*
- Future<void> refreshData() async {
+
+  Future<void> refreshData() async {
     await Future.delayed(
       Duration(seconds: 1),
     );
     setState(() {
-      getData();
+      retrieveData();
     });
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        centerTitle: true,
-        title: Text(
-          'Notes',
-          style: TextStyle(
-            color: Colors.black87,
-          ),
-        ),
-        backgroundColor: Colors.amber[400],
-      ),
-      body: RefreshIndicator(
-        onRefresh: refreshData,
-        backgroundColor: Colors.black87,
-        strokeWidth: 3,
-        child: FutureBuilder(
-          builder: (context, snapshot) {
-            if (!snapshot.hasData)
-              return Center(child: CircularProgressIndicator());
-            else if (snapshot.hasError)
-              return Center(
-                child: Text('Oops Error Occured'),
-              );
-            else {
-              return ListView.builder(
-                itemCount: snapshot.data.length,
-                itemBuilder: (context, index) {
-                  return Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: ListTile(
-                      tileColor: Colors.amber[50],
-                      title: Text(snapshot.data[index]['title']),
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => OpenNotes(
-                              id: snapshot.data[index]['_id'],
-                            ),
-                          ),
-                        );
-                      },
-                      trailing: IconButton(
-                        onPressed: () {
-                          deleteData(snapshot.data[index]['_id']);
-                          setState(() {
-                            Scaffold.of(context).showSnackBar(
-                              SnackBar(
-                                content: Text(
-                                  '${snapshot.data[index]['title']} deleted',
-                                ),
-                              ),
-                            );
-                          });
-                        },
-                        icon: Icon(Icons.delete),
-                      ),
-                    ),
-                  );
-                },
-              );
-            }
-          },
-          future: getData(),
-        ),
-      ),
-      floatingActionButton: FloatingActionButton.extended(
-        backgroundColor: Colors.amber[400],
-        onPressed: () {
-          Navigator.of(context).push(
-            MaterialPageRoute(
-              builder: (context) {
-                return NewNotes();
-              },
-            ),
-          );
-        },
-        label: Text(
-          'Create',
-          style: TextStyle(
-            color: Colors.black87,
-          ),
-        ),
-        icon: Icon(
-          Icons.edit_outlined,
-          color: Colors.black87,
-        ),
-      ),
-    );
- */
+  Future<void> retrieveData() async {
+    var res = await Dio().post(
+        'https://cab-server.herokuapp.com/trip/viewTrips',
+        data: {"empId": _empId});
+
+    return res.data["msg"];
+  }
+}

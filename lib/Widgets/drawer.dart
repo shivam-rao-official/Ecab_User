@@ -1,12 +1,20 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
-Widget customDrawer(BuildContext context) {
+Widget customDrawer(BuildContext context, String name, String empId) {
+  Future logOut() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.remove('Name');
+    await prefs.remove('PhoneNum');
+    await prefs.remove('EmpID');
+  }
+
   return Drawer(
     child: Column(
       children: [
         UserAccountsDrawerHeader(
           accountName: Text(
-            "acount name",
+            name,
             style: TextStyle(
               color: Colors.black,
               fontWeight: FontWeight.bold,
@@ -14,7 +22,7 @@ Widget customDrawer(BuildContext context) {
             ),
           ),
           accountEmail: Text(
-            "mail.copm",
+            empId,
             style: TextStyle(
               color: Colors.black,
               fontWeight: FontWeight.bold,
@@ -76,6 +84,7 @@ Widget customDrawer(BuildContext context) {
           alignment: Alignment.topLeft,
           child: TextButton(
             onPressed: () {
+              logOut();
               Navigator.of(context).pushReplacementNamed('/login');
             },
             child: Text(

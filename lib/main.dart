@@ -5,12 +5,22 @@ import 'package:gmaps_demo/Screens/bookingPage.dart';
 import 'package:gmaps_demo/Screens/homecreen.dart';
 import 'package:gmaps_demo/Screens/splash.dart';
 import 'package:gmaps_demo/Screens/splash2.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
-void main() {
-  runApp(MyApp());
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+  var EmpID = prefs.getString('EmpID');
+  var PhoneNum = prefs.getString('PhoneNum');
+  var Name = prefs.getString('Name');
+  var uid = prefs.getString('UID');
+  runApp(MyApp(uid: EmpID));
 }
 
 class MyApp extends StatelessWidget {
+  final String uid;
+
+  MyApp({@required this.uid});
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
