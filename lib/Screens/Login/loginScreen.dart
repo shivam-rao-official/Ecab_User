@@ -1,5 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:gmaps_demo/Screens/homecreen.dart';
 import 'dart:convert' as convert;
 
 import 'package:shared_preferences/shared_preferences.dart';
@@ -227,7 +228,14 @@ class _LoginScreenState extends State<LoginScreen> {
                   TextButton(
                     child: Text("Proceed"),
                     onPressed: () {
-                      Navigator.of(context).pushReplacementNamed('/home');
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => HomeScreen(
+                            empId: _empId,
+                          ),
+                        ),
+                      );
                     },
                   ),
                 ],

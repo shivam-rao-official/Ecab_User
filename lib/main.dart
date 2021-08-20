@@ -5,6 +5,7 @@ import 'package:gmaps_demo/Screens/bookingPage.dart';
 import 'package:gmaps_demo/Screens/homecreen.dart';
 import 'package:gmaps_demo/Screens/splash.dart';
 import 'package:gmaps_demo/Screens/splash2.dart';
+import 'package:gmaps_demo/Screens/tripSummary.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 Future<void> main() async {
@@ -36,6 +37,7 @@ class MyApp extends StatelessWidget {
         '/signup': (BuildContext ctxt) => SignupScreen(),
         '/home': (BuildContext ctxt) => HomeScreen(),
         '/bookTrip': (BuildContext ctxt) => TripBooking(),
+        '/tripSummary': (BuildContext ctxt) => TripSummary()
       },
       home: Splash(),
     );
